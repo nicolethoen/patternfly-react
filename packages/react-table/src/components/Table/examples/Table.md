@@ -2137,7 +2137,7 @@ class TreeTable extends React.Component {
         rows={this.buildRows(this.state.data, 1, 1)}        
       >
         <TableHeader />
-        <TableBody />
+        <TableBody role="tree" />
       </Table>
     );
   }
@@ -3386,7 +3386,7 @@ class TreeTable extends React.Component {
             ))}
           </Tr>
         </Thead>
-        <Tbody>
+        <Tbody role="tree">
           {this.buildRows(this.state.data, 1, 1).map((row, rowIndex) => (
             <TreeRowWrapper row={row} key={rowIndex}>
               {row.cells.map((cell, cellIndex) => cellIndex === 0 ? (
