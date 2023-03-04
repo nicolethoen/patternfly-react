@@ -3,7 +3,8 @@ import {
   Button,
   EmptyState,
   EmptyStateBody,
-  EmptyStateIcon,
+  EmptyStateFooter,
+  EmptyStateHeader,
   EmptyStatePrimary,
   EmptyStateVariant,
   NotificationDrawer,
@@ -164,17 +165,16 @@ export const NotificationDrawerLightweight: React.FunctionComponent = () => {
           >
             <NotificationDrawerList isHidden={!thirdGroupExpanded}>
               <EmptyState variant={EmptyStateVariant.full}>
-                <EmptyStateIcon icon={SearchIcon} />
-                <Title headingLevel="h2" size="lg">
-                  No alerts found
-                </Title>
+                <EmptyStateHeader headingLevel="h2" titleText="No alerts found" icon={SearchIcon} />
                 <EmptyStateBody>
                   There are currently no critical alerts firing. There may be firing alerts of other severities or
                   silenced critical alerts however.
                 </EmptyStateBody>
-                <EmptyStatePrimary>
-                  <Button variant="link">Action</Button>
-                </EmptyStatePrimary>
+                <EmptyStateFooter>
+                  <EmptyStatePrimary>
+                    <Button variant="link">Action</Button>
+                  </EmptyStatePrimary>
+                </EmptyStateFooter>
               </EmptyState>
             </NotificationDrawerList>
           </NotificationDrawerGroup>
