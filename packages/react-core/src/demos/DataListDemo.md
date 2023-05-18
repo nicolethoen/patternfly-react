@@ -427,20 +427,17 @@ class ExpandableDataList extends React.Component {
 }
 ```
 
-### Data List view
+### Basic
 
 ```js isFullscreen
 import React from 'react';
 import {
-  Badge,
   Button,
   DataList,
   DataListItem,
   DataListCell,
   DataListItemRow,
   DataListItemCells,
-  Dropdown,
-  DropdownItem,
   Flex,
   FlexItem,
   MenuToggle,
@@ -456,9 +453,7 @@ import {
   TextVariants,
   Toolbar,
   ToolbarItem,
-  ToolbarFilter,
-  ToolbarContent,
-  Select
+  ToolbarContent
 } from '@patternfly/react-core';
 import EllipsisVIcon from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
 import DashboardWrapper from '@patternfly/react-core/src/demos/examples/DashboardWrapper';
@@ -476,13 +471,12 @@ class DataListViewBasic extends React.Component {
 
     this.state = {
       page: 1,
-      perPage: 5,
       totalItemCount: 5
     };
   }
 
   renderPagination() {
-    const { page, perPage, totalItemCount } = this.state;
+    const { page, totalItemCount } = this.state;
 
     return <Pagination itemCount={totalItemCount} page={page} variant="top" isCompact />;
   }
@@ -496,6 +490,7 @@ class DataListViewBasic extends React.Component {
             splitButtonOptions={{
               items: [<MenuToggleCheckbox id="split-dropdown-checkbox" aria-label={'Select all cards'} />]
             }}
+            key="split-dropdown-checkbox"
           ></MenuToggle>
         </ToolbarItem>
         <ToolbarItem breakpoint="xl">
