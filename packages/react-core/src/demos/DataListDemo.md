@@ -539,14 +539,14 @@ class DataListViewBasic extends React.Component {
                       <DataListCell isFilled={false} key="buttons1">
                         <Flex direction={{ default: 'column' }}>
                           <FlexItem>
-                            <Text component={TextVariants.small}>patternfly</Text>
+                            <Text component={TextVariants.p}>patternfly</Text>
                           </FlexItem>
                           <FlexItem>
                             <Text component={TextVariants.small}>
-                              Working repo for PatternFly 4{' '}
-                              <Button variant="link" isInline>
-                                https://pf4.patternfly.org/
-                              </Button>
+                              Working repo for
+                              <a href="http://www.patternfly.org/">
+                                PatternFly
+                              </a>
                             </Text>
                           </FlexItem>
                           <FlexItem>
@@ -571,9 +571,7 @@ class DataListViewBasic extends React.Component {
                             <Button variant="secondary">Action</Button>
                           </FlexItem>
                           <FlexItem>
-                            <Button variant="link" isInline>
-                              Link
-                            </Button>
+                            <a href="#">Link</a>
                           </FlexItem>
                         </Flex>
                       </DataListCell>
@@ -625,9 +623,7 @@ class DataListViewBasic extends React.Component {
                             <Button variant="secondary">Action</Button>
                           </FlexItem>
                           <FlexItem>
-                            <Button variant="link" isInline>
-                              Link
-                            </Button>
+                            <a href="#">Link</a>
                           </FlexItem>
                         </Flex>
                       </DataListCell>
@@ -652,9 +648,7 @@ class DataListViewBasic extends React.Component {
                             <Button variant="secondary">Action</Button>
                           </FlexItem>
                           <FlexItem>
-                            <Button variant="link" isInline>
-                              Link
-                            </Button>
+                            <a href="#">Link</a>
                           </FlexItem>
                         </Flex>
                       </DataListCell>
@@ -673,10 +667,10 @@ class DataListViewBasic extends React.Component {
                           </FlexItem>
                           <FlexItem>
                             <Text component={TextVariants.small}>
-                              Working repo for PatternFly 4{' '}
-                              <Button variant="link" isInline>
-                                https://pf4.patternfly.org/
-                              </Button>
+                              Working repo for
+                              <a href="http://www.patternfly.org/">
+                                PatternFly
+                              </a>
                             </Text>
                           </FlexItem>
                           <FlexItem>
@@ -702,9 +696,7 @@ class DataListViewBasic extends React.Component {
                             <Button variant="secondary">Action</Button>
                           </FlexItem>
                           <FlexItem>
-                            <Button variant="link" isInline>
-                              Link
-                            </Button>
+                            <a href="#">Link</a>
                           </FlexItem>
                         </Flex>
                       </DataListCell>
@@ -727,10 +719,10 @@ class DataListViewBasic extends React.Component {
                           <FlexItem>
                             <Flex spaceItems={{ default: 'spaceItemsSm' }}>
                               <FlexItem>
-                                <CodeBranchIcon />5
+                                <CodeBranchIcon /> 5
                               </FlexItem>
                               <FlexItem>
-                                <CodeIcon />9
+                                <CodeIcon /> 9
                               </FlexItem>
                               <FlexItem>
                                 <CubeIcon /> 2
@@ -755,9 +747,7 @@ class DataListViewBasic extends React.Component {
                             <Button variant="secondary">Action</Button>
                           </FlexItem>
                           <FlexItem>
-                            <Button variant="link" isInline>
-                              Link
-                            </Button>
+                            <a href="#">Link</a>
                           </FlexItem>
                         </Flex>
                       </DataListCell>

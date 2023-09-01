@@ -111,8 +111,5 @@
     "packages": [
       "packages/**"
     ]
-  },
-  "dependencies": {
-    "@patternfly/react-icons": "5.0.0-alpha.15"
   }
 }
