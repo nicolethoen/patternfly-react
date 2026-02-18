@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.5.0-prerelease.11](https://github.com/patternfly/patternfly-react/compare/@patternfly/react-tokens@6.5.0-prerelease.10...@patternfly/react-tokens@6.5.0-prerelease.11) (2026-02-18)
+
+### Features
+
+- **icons:** add swap support for mapped rh-ui icons ([#12245](https://github.com/patternfly/patternfly-react/issues/12245)) ([a81ce0e](https://github.com/patternfly/patternfly-react/commit/a81ce0e1b6fdd7a3e85cdd70e5bb667dc7d82801))
+
 # [6.5.0-prerelease.10](https://github.com/patternfly/patternfly-react/compare/@patternfly/react-tokens@6.5.0-prerelease.9...@patternfly/react-tokens@6.5.0-prerelease.10) (2026-02-05)
 
 ### Features

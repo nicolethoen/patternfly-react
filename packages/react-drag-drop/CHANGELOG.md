@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.5.0-prerelease.33](https://github.com/patternfly/patternfly-react/compare/@patternfly/react-drag-drop@6.5.0-prerelease.32...@patternfly/react-drag-drop@6.5.0-prerelease.33) (2026-02-18)
+
+### Features
+
+- **icons:** add swap support for mapped rh-ui icons ([#12245](https://github.com/patternfly/patternfly-react/issues/12245)) ([a81ce0e](https://github.com/patternfly/patternfly-react/commit/a81ce0e1b6fdd7a3e85cdd70e5bb667dc7d82801))
+
 # [6.5.0-prerelease.32](https://github.com/patternfly/patternfly-react/compare/@patternfly/react-drag-drop@6.5.0-prerelease.31...@patternfly/react-drag-drop@6.5.0-prerelease.32) (2026-02-06)
 
 **Note:** Version bump only for package @patternfly/react-drag-drop
