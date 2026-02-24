@@ -66,6 +66,8 @@ export interface DragDropContainerProps extends DndContextProps {
   variant?: 'default' | 'DataList' | 'DualListSelectorList';
   /** Additional classes to apply to the drag overlay */
   overlayProps?: any;
+  /** The parent container to append the drag overlay to. Defaults to document.body. */
+  appendTo?: HTMLElement | (() => HTMLElement);
 }
 
 export const DragDropContainer: React.FunctionComponent<DragDropContainerProps> = ({
@@ -77,6 +79,7 @@ export const DragDropContainer: React.FunctionComponent<DragDropContainerProps> 
   onCancel = () => {},
   variant = 'default',
   overlayProps,
+  appendTo = () => document.body,
   ...props
 }: DragDropContainerProps) => {
   const itemsCopy = useRef<Record<string, DraggableObject[]> | null>(null);
@@ -288,6 +291,9 @@ export const DragDropContainer: React.FunctionComponent<DragDropContainerProps> 
   };
 
   const dragOverlay = <DragOverlay>{activeId && getDragOverlay()}</DragOverlay>;
+
+  const portalTarget = typeof appendTo === 'function' ? appendTo() : appendTo || document.body;
+
   return (
     <DndContext
       sensors={sensors}
@@ -299,7 +305,7 @@ export const DragDropContainer: React.FunctionComponent<DragDropContainerProps> 
       {...props}
     >
       {children}
-      {canUseDOM ? ReactDOM.createPortal(dragOverlay, document.getElementById('root')) : dragOverlay}
+      {canUseDOM && portalTarget ? ReactDOM.createPortal(dragOverlay, portalTarget) : dragOverlay}
     </DndContext>
   );
 };
