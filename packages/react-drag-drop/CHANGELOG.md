@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.5.0-prerelease.35](https://github.com/patternfly/patternfly-react/compare/@patternfly/react-drag-drop@6.5.0-prerelease.34...@patternfly/react-drag-drop@6.5.0-prerelease.35) (2026-02-24)
+
+### Bug Fixes
+
+- **react-drag-drop:** support dynamic root element IDs in DragDropCon… ([#12240](https://github.com/patternfly/patternfly-react/issues/12240)) ([43e798d](https://github.com/patternfly/patternfly-react/commit/43e798d37c81ed2b0bc64db72708d70a79565694)), closes [#12217](https://github.com/patternfly/patternfly-react/issues/12217)
+
 # [6.5.0-prerelease.34](https://github.com/patternfly/patternfly-react/compare/@patternfly/react-drag-drop@6.5.0-prerelease.33...@patternfly/react-drag-drop@6.5.0-prerelease.34) (2026-02-24)
 
 **Note:** Version bump only for package @patternfly/react-drag-drop
