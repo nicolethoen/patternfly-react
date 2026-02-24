@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.5.0-prerelease.13](https://github.com/patternfly/patternfly-react/compare/@patternfly/react-styles@6.5.0-prerelease.12...@patternfly/react-styles@6.5.0-prerelease.13) (2026-02-24)
+
+### Bug Fixes
+
+- **deps:** update dependency @patternfly/patternfly to v6.5.0-prerelease.43 ([#12230](https://github.com/patternfly/patternfly-react/issues/12230)) ([82687ad](https://github.com/patternfly/patternfly-react/commit/82687ad20da22eef09581ea50266feb21d85ea8a))
+
 # [6.5.0-prerelease.12](https://github.com/patternfly/patternfly-react/compare/@patternfly/react-styles@6.5.0-prerelease.11...@patternfly/react-styles@6.5.0-prerelease.12) (2026-02-18)
 
 ### Features
