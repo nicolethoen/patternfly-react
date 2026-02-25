@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.5.0-prerelease.35](https://github.com/patternfly/patternfly-react/compare/@patternfly/react-core@6.5.0-prerelease.34...@patternfly/react-core@6.5.0-prerelease.35) (2026-02-25)
+
+### Features
+
+- **Tabs:** add tabListAriaLabel prop ([#12193](https://github.com/patternfly/patternfly-react/issues/12193)) ([a7d85d7](https://github.com/patternfly/patternfly-react/commit/a7d85d7541cd62736e55e13d1564ab630fa91781))
+
 # [6.5.0-prerelease.34](https://github.com/patternfly/patternfly-react/compare/@patternfly/react-core@6.5.0-prerelease.33...@patternfly/react-core@6.5.0-prerelease.34) (2026-02-24)
 
 ### Bug Fixes
