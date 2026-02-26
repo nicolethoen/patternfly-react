@@ -10,7 +10,6 @@
 - [Issues and Project Board](#issues-and-project-board)
   - [Issue Labels](#issue-labels)
   - [PR Labels](#pr-labels)
-  - [Project Board Columns](#project-board-columns)
 - [Contribution Process](#contribution-process)
   - [Creating Issues for Bugs](#creating-issues-for-bugs)
   - [Creating Issues for New Components](#creating-issues-for-new-components)
