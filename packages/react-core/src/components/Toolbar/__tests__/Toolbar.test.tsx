@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { createElement, Fragment } from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
@@ -203,6 +203,32 @@ describe('Toolbar', () => {
         const bpNoWrapClass = bp === 'default' ? 'pf-m-nowrap' : `pf-m-nowrap-on-${bp}`;
         expect(screen.getByTestId('toolbarconent').querySelector('div')).toHaveClass(bpNoWrapClass);
       });
+    });
+  });
+
+  const bps = ['default', 'md', 'lg', 'xl', '2xl'] as const;
+  describe.each(bps)(`ToolbarContent visibilityAtHeight`, (bp) => {
+    it(`Applies correct visible class at ${bp}`, () => {
+      render(
+        <ToolbarContent data-testid="toolbarcontent" visibilityAtHeight={{ [bp]: 'visible' }}>
+          Test
+        </ToolbarContent>
+      );
+
+      if (bp !== 'default') {
+        expect(screen.getByTestId('toolbarcontent')).toHaveClass(`pf-m-visible-on-${bp}-height`);
+      }
+    });
+
+    it(`Applies correct hidden class at ${bp}`, () => {
+      render(
+        <ToolbarContent data-testid="toolbarcontent" visibilityAtHeight={{ [bp]: 'hidden' }}>
+          Test
+        </ToolbarContent>
+      );
+
+      const expectedClass = bp === 'default' ? 'pf-m-hidden' : `pf-m-hidden-on-${bp}-height`;
+      expect(screen.getByTestId('toolbarcontent')).toHaveClass(expectedClass);
     });
   });
 

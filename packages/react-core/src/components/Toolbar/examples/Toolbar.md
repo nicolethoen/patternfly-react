@@ -34,6 +34,14 @@ To adjust a toolbar’s inset, use the `inset` property. You can set the inset v
 
 ```
 
+### Vertical toolbar
+
+A toolbar's orientation may be changed using the `isVertical` property. Responsive behavior when height is adjusted may be customized for the `ToolbarContent`, `ToolbarGroup`, and `ToolbarItem` components using their respective `visibilityAtHeight` property.
+
+```ts file="./ToolbarVertical.tsx"
+
+```
+
 ### Sticky toolbar
 
 To lock a toolbar and prevent it from scrolling with other content, use a sticky toolbar.
