@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.5.0-prerelease.64](https://github.com/patternfly/patternfly-react/compare/@patternfly/react-drag-drop@6.5.0-prerelease.63...@patternfly/react-drag-drop@6.5.0-prerelease.64) (2026-04-28)
+
+### Bug Fixes
+
+- Updated drag and drop to use the correct glass theme. ([#12306](https://github.com/patternfly/patternfly-react/issues/12306)) ([3392662](https://github.com/patternfly/patternfly-react/commit/3392662d57a73d94258a0230fbf9de590ec08d85))
+
 # [6.5.0-prerelease.63](https://github.com/patternfly/patternfly-react/compare/@patternfly/react-drag-drop@6.5.0-prerelease.62...@patternfly/react-drag-drop@6.5.0-prerelease.63) (2026-04-27)
 
 **Note:** Version bump only for package @patternfly/react-drag-drop

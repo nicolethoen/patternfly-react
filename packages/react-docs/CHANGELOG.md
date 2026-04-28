@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.5.0-prerelease.74](https://github.com/patternfly/patternfly-react/compare/@patternfly/react-docs@7.5.0-prerelease.73...@patternfly/react-docs@7.5.0-prerelease.74) (2026-04-28)
+
+### Features
+
+- **Compass:** added responsive docked compass ([#12382](https://github.com/patternfly/patternfly-react/issues/12382)) ([ccad519](https://github.com/patternfly/patternfly-react/commit/ccad5191fb4ee814a555a8fb73fcdc4b878463ea))
+
 # [7.5.0-prerelease.73](https://github.com/patternfly/patternfly-react/compare/@patternfly/react-docs@7.5.0-prerelease.72...@patternfly/react-docs@7.5.0-prerelease.73) (2026-04-27)
 
 **Note:** Version bump only for package @patternfly/react-docs

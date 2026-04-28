@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.5.0-prerelease.63](https://github.com/patternfly/patternfly-react/compare/@patternfly/react-core@6.5.0-prerelease.62...@patternfly/react-core@6.5.0-prerelease.63) (2026-04-28)
+
+### Features
+
+- **Compass:** added responsive docked compass ([#12382](https://github.com/patternfly/patternfly-react/issues/12382)) ([ccad519](https://github.com/patternfly/patternfly-react/commit/ccad5191fb4ee814a555a8fb73fcdc4b878463ea))
+- **Toolbar,OverflowMenu:** support responsive height vis breakpoints ([#12347](https://github.com/patternfly/patternfly-react/issues/12347)) ([feca983](https://github.com/patternfly/patternfly-react/commit/feca9838a3365d7582acac578b03efeeffe1f9b5))
+- **Toolbar:** dynamic sticky ([#12375](https://github.com/patternfly/patternfly-react/issues/12375)) ([cb3856a](https://github.com/patternfly/patternfly-react/commit/cb3856aa1f6d4f419615d2ba50e9dee6d92a37be))
+
 # [6.5.0-prerelease.62](https://github.com/patternfly/patternfly-react/compare/@patternfly/react-core@6.5.0-prerelease.61...@patternfly/react-core@6.5.0-prerelease.62) (2026-04-27)
 
 **Note:** Version bump only for package @patternfly/react-core

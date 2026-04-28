@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.5.0-prerelease.20](https://github.com/patternfly/patternfly-react/compare/@patternfly/react-tokens@6.5.0-prerelease.19...@patternfly/react-tokens@6.5.0-prerelease.20) (2026-04-28)
+
+### Features
+
+- **Compass:** added responsive docked compass ([#12382](https://github.com/patternfly/patternfly-react/issues/12382)) ([ccad519](https://github.com/patternfly/patternfly-react/commit/ccad5191fb4ee814a555a8fb73fcdc4b878463ea))
+
 # [6.5.0-prerelease.19](https://github.com/patternfly/patternfly-react/compare/@patternfly/react-tokens@6.5.0-prerelease.18...@patternfly/react-tokens@6.5.0-prerelease.19) (2026-04-24)
 
 ### Features

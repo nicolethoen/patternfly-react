@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.5.0-prerelease.28](https://github.com/patternfly/patternfly-react/compare/@patternfly/react-icons@6.5.0-prerelease.27...@patternfly/react-icons@6.5.0-prerelease.28) (2026-04-28)
+
+### Bug Fixes
+
+- Updated drag and drop to use the correct glass theme. ([#12306](https://github.com/patternfly/patternfly-react/issues/12306)) ([3392662](https://github.com/patternfly/patternfly-react/commit/3392662d57a73d94258a0230fbf9de590ec08d85))
+
+### Features
+
+- **Compass:** added responsive docked compass ([#12382](https://github.com/patternfly/patternfly-react/issues/12382)) ([ccad519](https://github.com/patternfly/patternfly-react/commit/ccad5191fb4ee814a555a8fb73fcdc4b878463ea))
+
 # [6.5.0-prerelease.27](https://github.com/patternfly/patternfly-react/compare/@patternfly/react-icons@6.5.0-prerelease.26...@patternfly/react-icons@6.5.0-prerelease.27) (2026-04-27)
 
 **Note:** Version bump only for package @patternfly/react-icons
