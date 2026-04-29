@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.5.0-prerelease.29](https://github.com/patternfly/patternfly-react/compare/@patternfly/react-icons@6.5.0-prerelease.28...@patternfly/react-icons@6.5.0-prerelease.29) (2026-04-29)
+
+### Features
+
+- update rhds icons to 2.2.0 ([#12387](https://github.com/patternfly/patternfly-react/issues/12387)) ([b17ea14](https://github.com/patternfly/patternfly-react/commit/b17ea14befd633e87bcb38440123ee82b2a53c3b))
+
 # [6.5.0-prerelease.28](https://github.com/patternfly/patternfly-react/compare/@patternfly/react-icons@6.5.0-prerelease.27...@patternfly/react-icons@6.5.0-prerelease.28) (2026-04-28)
 
 ### Bug Fixes

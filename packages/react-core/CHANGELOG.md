@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.5.0-prerelease.64](https://github.com/patternfly/patternfly-react/compare/@patternfly/react-core@6.5.0-prerelease.63...@patternfly/react-core@6.5.0-prerelease.64) (2026-04-29)
+
+### Features
+
+- update rhds icons to 2.2.0 ([#12387](https://github.com/patternfly/patternfly-react/issues/12387)) ([b17ea14](https://github.com/patternfly/patternfly-react/commit/b17ea14befd633e87bcb38440123ee82b2a53c3b))
+
 # [6.5.0-prerelease.63](https://github.com/patternfly/patternfly-react/compare/@patternfly/react-core@6.5.0-prerelease.62...@patternfly/react-core@6.5.0-prerelease.63) (2026-04-28)
 
 ### Features
