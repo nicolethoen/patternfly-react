@@ -5,11 +5,25 @@
   "description": "PatternFly Web Components POC - React components delivered as custom elements via Preact",
   "license": "MIT",
   "main": "dist/pf-elements.iife.js",
-  "module": "src/index.ts",
+  "module": "dist/esm/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "default": "./dist/pf-elements.iife.js"
+    },
+    "./button": "./dist/esm/elements/button.js",
+    "./badge": "./dist/esm/elements/badge.js",
+    "./label": "./dist/esm/elements/label.js",
+    "./spinner": "./dist/esm/elements/spinner.js",
+    "./alert": "./dist/esm/elements/alert.js",
+    "./switch": "./dist/esm/elements/switch.js"
+  },
   "scripts": {
     "build": "rollup -c",
     "analyze": "ANALYZE=true rollup -c",
-    "watch": "rollup -c --watch"
+    "watch": "rollup -c --watch",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@patternfly/react-core": "workspace:^",
@@ -25,9 +39,11 @@
     "@rollup/plugin-node-resolve": "^15.3.1",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.2",
+    "jsdom": "^26.0.0",
     "rollup": "^4.57.1",
     "rollup-plugin-visualizer": "^7.1.1",
     "tslib": "^2.8.1",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "vitest": "^3.1.1"
   }
 }
