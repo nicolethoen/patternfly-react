@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Web Components Panel</title>
+  <script type="module" src="./src/main.ts"></script>
+</head>
+<body>
+  <div id="root">
+    <h4>Button</h4>
+    <div class="pf-v6-l-flex pf-m-gap-sm">
+      <pf-button variant="primary">Primary</pf-button>
+      <pf-button variant="secondary">Secondary</pf-button>
+      <pf-button variant="danger">Danger</pf-button>
+      <pf-button isdisabled>Disabled</pf-button>
+    </div>
+
+    <h4>Badge</h4>
+    <div class="pf-v6-l-flex pf-m-gap-sm">
+      <pf-badge>7</pf-badge>
+      <pf-badge isread>24</pf-badge>
+    </div>
+
+    <h4>Label</h4>
+    <div class="pf-v6-l-flex pf-m-gap-sm">
+      <pf-label color="blue">Blue</pf-label>
+      <pf-label color="green">Green</pf-label>
+      <pf-label color="red">Red</pf-label>
+      <pf-label variant="outline" status="success">Success</pf-label>
+    </div>
+
+    <h4>Spinner</h4>
+    <div class="pf-v6-l-flex pf-m-gap-sm pf-m-align-items-center">
+      <pf-spinner size="sm"></pf-spinner>
+      <pf-spinner size="md"></pf-spinner>
+      <pf-spinner size="lg"></pf-spinner>
+    </div>
+
+    <h4>Alert</h4>
+    <pf-alert variant="info" title="This is an info alert" isinline>
+      Alert description content.
+    </pf-alert>
+
+    <h4>Switch</h4>
+    <pf-switch label="Notifications"></pf-switch>
+  </div>
+</body>
+</html>

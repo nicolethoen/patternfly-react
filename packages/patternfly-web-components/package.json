@@ -1,0 +1,33 @@
+{
+  "name": "@patternfly/patternfly-web-components",
+  "version": "0.1.0-poc",
+  "private": true,
+  "description": "PatternFly Web Components POC - React components delivered as custom elements via Preact",
+  "license": "MIT",
+  "main": "dist/pf-elements.iife.js",
+  "module": "src/index.ts",
+  "scripts": {
+    "build": "rollup -c",
+    "analyze": "ANALYZE=true rollup -c",
+    "watch": "rollup -c --watch"
+  },
+  "dependencies": {
+    "@patternfly/react-core": "workspace:^",
+    "@patternfly/react-icons": "workspace:^",
+    "@patternfly/react-styles": "workspace:^",
+    "@patternfly/react-tokens": "workspace:^",
+    "preact": "^10.29.8",
+    "preact-custom-element": "^4.6.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-alias": "^5.1.1",
+    "@rollup/plugin-commonjs": "^26.0.3",
+    "@rollup/plugin-node-resolve": "^15.3.1",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^12.1.2",
+    "rollup": "^4.57.1",
+    "rollup-plugin-visualizer": "^7.1.1",
+    "tslib": "^2.8.1",
+    "typescript": "^5.4.5"
+  }
+}

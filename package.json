@@ -106,6 +106,7 @@
     "start": "yarn build && concurrently --kill-others \"yarn watch\" \"yarn workspace @patternfly/react-docs develop\"",
     "start:cypress": "lerna run cypress:open",
     "start:demo-app": "lerna run dev --scope=demo-app-ts --stream",
+    "start:wc": "yarn workspace @patternfly/wc-test-app dev",
     "test": "TZ=EST LC_ALL=en_US.UTF8 jest packages",
     "test:a11y": "lerna run test:a11y --stream",
     "test:integration": "yarn workspace @patternfly/react-integration test:integration",
@@ -120,7 +121,9 @@
   "workspaces": {
     "packages": [
       "packages/*",
-      "packages/react-integration/demo-app-ts"
+      "packages/react-integration/demo-app-ts",
+      "packages/patternfly-web-components/test-app",
+      "packages/patternfly-web-components/test-app/wc-panel"
     ]
   },
   "resolutions": {
