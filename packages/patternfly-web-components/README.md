@@ -1,29 +1,33 @@
-# @patternfly/react-web-components (POC)
+# @patternfly/patternfly-web-components (POC)
 
-PatternFly React components delivered as native Web Components via Preact aliasing.
+PatternFly React components delivered as native Web Components via Preact aliasing — no changes to React source code or APIs.
 
 ## How it Works
 
-1. The existing `@patternfly/react-core` React components are the source of truth (unchanged)
+1. Existing `@patternfly/react-core` components are the source of truth (unchanged)
 2. At build time, `react` and `react-dom` are aliased to `preact/compat` (~6KB vs ~40KB)
-3. Components are registered as custom elements using `preact-custom-element`
-4. Output: a self-contained IIFE bundle consumers load via `<script>` tag
+3. Components are registered as custom elements via `bridge()` (atoms) or `bridgeFamily()` (compound)
+4. Output: per-component ESM chunks (tree-shakeable) + an all-in-one IIFE bundle
 
-## The Entire Registration Code
+## Registration
 
 ```typescript
-import register from 'preact-custom-element';
-import { Button, Badge, Label, Spinner, Alert, Switch } from '@patternfly/react-core';
+// Atom — one bridge() call per component
+import { Button } from '@patternfly/react-core';
+import { bridge, attr, bool } from '../bridge';
 
-register(Button, 'pf-button', ['variant', 'isDisabled', 'isBlock', 'size', 'isLoading'], { shadow: false });
-register(Badge, 'pf-badge', ['isRead'], { shadow: false });
-register(Label, 'pf-label', ['color', 'variant', 'status', 'isCompact'], { shadow: false });
-register(Spinner, 'pf-spinner', ['size', 'isInline', 'aria-label'], { shadow: false });
-register(Alert, 'pf-alert', ['variant', 'title', 'isInline', 'isPlain'], { shadow: false });
-register(Switch, 'pf-switch', ['label', 'isChecked', 'isDisabled', 'aria-label'], { shadow: false });
+bridge(Button, 'pf-button', [attr('variant'), attr('size'), bool('isDisabled'), bool('isBlock')]);
+
+// Compound — one bridgeFamily() call per component family
+import { Card, CardHeader, CardBody, CardFooter } from '@patternfly/react-core';
+import { bridgeFamily, attr, bool } from '../bridge';
+
+bridgeFamily(Card, 'pf-card', [attr('variant'), bool('isCompact')], {
+  'pf-card-header': { component: CardHeader, props: [] },
+  'pf-card-body':   { component: CardBody, props: [bool('isFilled')] },
+  'pf-card-footer': { component: CardFooter, props: [] },
+});
 ```
-
-That's it. One `register()` call per component. The rest is build config.
 
 ## Usage
 
@@ -32,44 +36,39 @@ That's it. One `register()` call per component. The rest is build config.
 <script src="path/to/pf-elements.iife.js"></script>
 
 <pf-button variant="primary">Click me</pf-button>
-<pf-badge>7</pf-badge>
-<pf-label color="blue">Status</pf-label>
-<pf-spinner size="md"></pf-spinner>
-<pf-alert variant="success" title="All good" isInline></pf-alert>
-<pf-switch label="Notifications"></pf-switch>
+<pf-card iscompact>
+  <pf-card-body>Content</pf-card-body>
+  <pf-card-footer><pf-button variant="primary">Action</pf-button></pf-card-footer>
+</pf-card>
+```
+
+Or use ESM per-component imports (tree-shakeable):
+
+```javascript
+import '@patternfly/patternfly-web-components/button';
+import '@patternfly/patternfly-web-components/card';
 ```
 
 ## Quick Start
 
 ```bash
-# Build the bundle
-yarn build
+# From project root:
+yarn start:wc       # dev server on localhost:3000
 
-# Build with interactive bundle size report
-yarn analyze
+# Or from this package:
+yarn build          # production IIFE + ESM bundles
+yarn test           # bridge + per-component tests
+yarn analyze        # interactive bundle treemap
 ```
-
-## Side-by-Side Test App
-
-See changes to React components reflected in both React and Web Component renderings simultaneously:
-
-```bash
-cd test-app
-yarn dev
-```
-
-Opens three servers:
-- **:3000** — Shell with split-pane comparison view
-- **:3001** — React panel (standard React + PF components)
-- **:3002** — Web Component panel (Preact-aliased custom elements)
 
 ## Bundle Size
 
-| | Raw | Gzip | Brotli |
-|-|-----|------|--------|
-| This bundle (6 components + Preact) | 84KB | 30KB | 27KB |
-| React + ReactDOM alone (no components) | 140KB | 40KB | 36KB |
+| | Gzip | Brotli |
+|-|------|--------|
+| All components (IIFE) | 30KB | 27KB |
+| Single component + Preact runtime | ~5KB | ~4KB |
+| React + ReactDOM (for comparison) | 40KB | 36KB |
 
 ## Evaluation
 
-See [EVALUATION.md](./EVALUATION.md) for the full comparison of this approach vs a Lit rewrite, including shadow DOM vs light DOM analysis.
+See [EVALUATION.md](./EVALUATION.md) for the full analysis: approach comparison, boundary rules, counterarguments, and proposed next steps.

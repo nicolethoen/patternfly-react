@@ -16,7 +16,8 @@
     "./label": "./dist/esm/elements/label.js",
     "./spinner": "./dist/esm/elements/spinner.js",
     "./alert": "./dist/esm/elements/alert.js",
-    "./switch": "./dist/esm/elements/switch.js"
+    "./switch": "./dist/esm/elements/switch.js",
+    "./card": "./dist/esm/elements/card.js"
   },
   "scripts": {
     "build": "rollup -c",

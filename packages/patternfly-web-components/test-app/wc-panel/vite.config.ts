@@ -18,6 +18,7 @@ export default defineConfig({
       '@patternfly/patternfly-web-components/spinner': path.join(wcPkgRoot, 'elements/spinner.ts'),
       '@patternfly/patternfly-web-components/alert': path.join(wcPkgRoot, 'elements/alert.ts'),
       '@patternfly/patternfly-web-components/switch': path.join(wcPkgRoot, 'elements/switch.ts'),
+      '@patternfly/patternfly-web-components/card': path.join(wcPkgRoot, 'elements/card.ts'),
       '@patternfly/patternfly-web-components': path.join(wcPkgRoot, 'index.ts')
     }
   },

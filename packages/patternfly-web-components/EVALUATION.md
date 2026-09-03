@@ -2,12 +2,22 @@
 
 ## Executive Summary
 
-This document evaluates two approaches for delivering PatternFly components as framework-agnostic web components:
+This POC demonstrates that PatternFly React components can be delivered as web components **without modifying any React component source code or public APIs**. By aliasing React to Preact at build time, the existing React components render inside native custom elements at a fraction of React's bundle cost (~6KB vs ~40KB runtime).
 
-1. **Approach A (this POC):** Keep the React source as-is, alias React to Preact at build time, wrap components as custom elements using `preact-custom-element`
-2. **Approach B (Lit rewrite):** Rewrite the component library from scratch using Lit as the source of truth, then wrap for React consumption via `@lit/react`
+Both the React and web component implementations share **the same PatternFly CSS** — no duplication, no drift, no Shadow DOM isolation boundary. Consumers load PF stylesheets once; both `<Button>` (React) and `<pf-button>` (custom element) produce identical markup and styling. This means React and web component instances can coexist on the same page with zero style discrepancies.
 
-Given 300+ React projects consuming the library today, Approach A offers a non-disruptive path to validate demand and feasibility before committing to a multi-year rewrite.
+**What works well:** Leaf components (Button, Badge, Alert, Switch) and compositional components (Card with sub-elements) bridge cleanly. Registration is 5–17 lines of declarative glue per component family — not a parallel implementation. When the underlying React component changes, the web component gets the update for free with no code change needed unless the prop API itself changes.
+
+**Attribute reactivity works out of the box:** Changing an attribute on a rendered element re-renders the component, so imperative DOM manipulation integrates naturally (`el.setAttribute('variant', 'danger')`). This makes the web components compatible with vanilla JS, jQuery, Drupal behaviors, or any templating system that manipulates the DOM.
+
+**Where it doesn't fit:** Complex interactive components that depend on React portals, focus traps, cross-component state, or lifecycle side effects (Modal, Select, Wizard) cannot be meaningfully bridged. These remain React-only, with guidance to use native alternatives (e.g. `<dialog>`) with PF CSS classes.
+
+**Trade-offs accepted:**
+- No Shadow DOM — consumers must load PF CSS globally, but gain the ability to mix frameworks on one page with consistent styling
+- Limited to the "markup and styling" tier of the component library — behavioral components require purpose-built implementations regardless of approach
+- Depends on Preact compatibility — mitigated by the fact that only basic React features (props, conditional classes, forwardRef) are exercised
+
+Given 300+ React projects consuming the library today, this approach validates demand without disrupting existing consumers or committing to a multi-year rewrite.
 
 ---
 
@@ -302,92 +312,123 @@ The Lit rewrite remains a valid long-term strategy if the organization decides t
 
 ---
 
-## POC Scope
+## POC Scope and Results
 
-This proof of concept wraps the following atoms:
-- **Button** - variant, disabled, block, size, loading
-- **Badge** - read/unread
-- **Label** - color, variant, status, compact
-- **Spinner** - size, inline
-- **Alert** - variant, title, inline, plain
-- **Switch** - checked, disabled, label
+### What Was Built
 
-### Running the POC
+| Tier | Bridge Pattern | Components | Lines of Glue |
+|------|---------------|------------|---------------|
+| Atoms | `bridge()` | Button, Badge, Label, Spinner, Alert, Switch | 5–8 per component |
+| Compound | `bridgeFamily()` | Card (+ Header, Title, Body, Footer) | ~17 total |
+| Boundary | N/A (documented) | Modal — not bridgeable | 0 (explanation only) |
+
+### How to Run
 
 ```bash
-# From the project root:
-yarn start:wc          # starts the test app on localhost:3000
-
-# Or build the production bundles:
-cd packages/patternfly-web-components
-yarn build             # outputs dist/iife/pf-elements.iife.js + dist/esm/
-yarn analyze           # opens interactive bundle treemap
-yarn test              # runs bridge + per-component tests
+yarn start:wc    # dev server on localhost:3000
+yarn build       # production IIFE + ESM bundles
+yarn test        # bridge + per-component tests
+yarn analyze     # interactive bundle treemap
 ```
 
-### What the Registration Code Looks Like
-
-Each component has a dedicated registration file in `src/elements/`. A single `bridge()` call maps lowercase HTML attributes to camelCase React props and handles boolean coercion:
-
-```typescript
-// src/elements/button.ts
-import { Button } from '@patternfly/react-core';
-import { bridge, attr, bool } from '../bridge';
-
-bridge(Button, 'pf-button', [
-  attr('variant'),
-  attr('size'),
-  attr('type'),
-  bool('isDisabled'),
-  bool('isBlock'),
-  bool('isLoading')
-]);
-```
-
-HTML attributes are always lowercase and always strings. The `bool()` helper coerces attribute presence to `true` and absence to `false`. The `attr()` helper passes string values through unchanged. This is the one unavoidable piece of glue between the HTML and React worlds.
-
-The barrel `src/index.ts` re-exports all elements for a "load everything" option, while individual files enable tree-shaking.
-
-### Consumer Usage
-
-**Drop-in script tag (IIFE — loads all components):**
+### Consumer API
 
 ```html
 <link rel="stylesheet" href="patternfly.css" />
 <script src="pf-elements.iife.js"></script>
 
 <pf-button variant="primary">Click me</pf-button>
-<pf-badge isread>24</pf-badge>
-<pf-alert variant="success" title="Done" isinline></pf-alert>
+<pf-card iscompact>
+  <pf-card-body>Content</pf-card-body>
+  <pf-card-footer><pf-button variant="primary">Action</pf-button></pf-card-footer>
+</pf-card>
 ```
 
-**ESM per-component imports (tree-shakeable — loads only what you use):**
+ESM alternative (tree-shakeable): `import '@patternfly/patternfly-web-components/button'`
 
-```javascript
-import '@patternfly/patternfly-web-components/button';
-import '@patternfly/patternfly-web-components/alert';
+Boolean attributes are lowercase (`isdisabled`, `iscompact`) because HTML normalizes attribute names.
+
+### Bundle Size
+
+| | Gzip | Brotli |
+|-|------|--------|
+| All components (IIFE) | 30KB | 27KB |
+| Single component + Preact runtime | ~5KB | ~4KB |
+| React + ReactDOM (for comparison) | 40KB | 36KB |
+
+---
+
+## How the Bridge Works
+
+### Atoms: `bridge()`
+
+For standalone components with no custom element children. Uses `preact-custom-element` — one `render()` per element's `connectedCallback`:
+
+```typescript
+import { Button } from '@patternfly/react-core';
+import { bridge, attr, bool } from '../bridge';
+
+bridge(Button, 'pf-button', [attr('variant'), attr('size'), bool('isDisabled'), bool('isBlock')]);
 ```
 
-Note: boolean attributes are lowercase (`isdisabled`, `isread`, `isinline`) because HTML normalizes all attribute names to lowercase.
+### Compound: `bridgeFamily()`
 
-### Measured Bundle Size
+For components with nested sub-elements. A single Preact render tree owned by the root element — child elements are passive markers, not independent renderers:
 
-| | Raw | Gzip | Brotli |
-|-|-----|------|--------|
-| All 6 components (IIFE bundle) | 84KB | 30KB | 27KB |
-| Per-component (e.g. Button + Preact runtime) | ~12KB | ~5KB | ~4KB |
-| React + ReactDOM alone (no components) | 140KB | 40KB | 36KB |
+```typescript
+import { Card, CardHeader, CardBody, CardFooter } from '@patternfly/react-core';
+import { bridgeFamily, attr, bool } from '../bridge';
 
-The IIFE bundle is larger than a minimal Preact app because PatternFly's Alert and Label components pull in transitive dependencies (Tooltip, icons). The per-component ESM build addresses this — consumers only pay for what they import, with the shared Preact runtime loaded once via a common chunk.
+bridgeFamily(Card, 'pf-card', [attr('variant'), bool('isCompact'), bool('isFlat')], {
+  'pf-card-header': { component: CardHeader, props: [] },
+  'pf-card-body':   { component: CardBody, props: [bool('isFilled')] },
+  'pf-card-footer': { component: CardFooter, props: [] },
+});
+```
+
+The root walks its DOM children, maps child tags to React components, and renders the family as one tree. Other custom elements (e.g. `pf-button` inside `pf-card-footer`) are treated as opaque — their attributes are preserved but their internals aren't touched.
+
+### Why compound components can't use `bridge()` for children
+
+Each `bridge()` element fires its own `render()`. When nested, this creates competing Preact render trees targeting overlapping DOM. `bridgeFamily()` solves this with a single render owned by the root.
+
+### Modal: Where the Bridge Stops
+
+Modal depends on portals, focus traps, callback props, body side effects, and controlled state — none of which map to HTML attributes. It cannot be bridged.
+
+**Alternatives for non-React consumers:**
+- Use native `<dialog>` with PF CSS classes (`pf-v6-c-modal-box`)
+- Or deliver a hand-written `<pf-modal>` custom element in the same package — the consumer API stays the same, only the implementation strategy differs
+
+---
+
+## The Boundary Rule
+
+| Pattern | Bridgeable? | Example |
+|---------|-------------|---------|
+| Props → CSS classes | Yes (`bridge()`) | Button, Badge, Label |
+| Light DOM composition | Yes (`bridgeFamily()`) | Card + sub-elements |
+| Nested leaf elements inside families | Yes (opaque) | `pf-button` in `pf-card-footer` |
+| Boolean/string attributes | Yes | All atoms and compound roots |
+| React Context between components | No | Expandable Card, Form validation |
+| Portals (renders outside host) | No | Modal, Popover, Tooltip |
+| Callback props (event handlers) | Partial | Requires custom event bridge |
+| Controlled state (parent owns open/close) | No | Modal, Drawer |
+| Focus management (trap, restore) | No | Modal, Dropdown |
+
+**Rule of thumb:** If a component's value comes from its *markup and styling*, the bridge works. If its value comes from its *behavior and lifecycle*, it needs a purpose-built implementation.
 
 ---
 
 ## Open Questions
 
-1. How many non-React consumers are actively requesting PatternFly components?
-2. Is style isolation (shadow DOM) a hard requirement for any known use case?
-3. Would a hybrid approach (light DOM for atoms, dedicated overlays for complex components) satisfy both camps?
-4. What is the team's appetite for maintaining a second delivery mechanism long-term?
+There are existing consumers of `patternfly-elements` (the Lit-based web components library), confirming that demand for non-React delivery exists. What we don't yet know:
+
+1. **How large is the PFE consumer base?** npm shows ~5K weekly downloads — but how many distinct teams/projects does that represent, and how critical is PFE to them?
+2. **Would those consumers accept a light DOM replacement?** Do any of them depend on Shadow DOM encapsulation, or do they just need pre-built elements with PF styling?
+3. **What's their migration tolerance?** If we offer a replacement under different element names or slightly different APIs, will they adopt it — or is stability more important than unification?
+4. **What is the team's appetite for maintaining a second delivery mechanism long-term?** Even if minimal, the bridge layer is a new surface area.
+5. **Are there net-new consumers waiting?** Teams who *would* use PatternFly web components but don't use PFE today — what's blocking them?
 
 ---
 
@@ -403,138 +444,167 @@ A few things we discovered during implementation:
 
 4. **Transitive dependencies inflate the bundle.** Alert and Label pull in Tooltip, which pulls in Popper-like positioning logic. The per-component ESM build mitigates this — consumers only load the dependencies of the components they actually import.
 
-5. **The approach works.** Despite the above friction points, the components render correctly using the same PatternFly CSS, with Preact as a ~6KB drop-in replacement for React's ~40KB runtime.
+5. **Compound components cannot use `preact-custom-element` for children.** When multiple nested custom elements each fire their own `render()`, the result is conflicting Preact render trees targeting overlapping DOM. The solution is `bridgeFamily()`: a single render call owned by the root element, which walks its children and maps child custom element tags to their React counterparts. Child elements are passive markers, not independent renderers.
+
+6. **Opaque nesting works.** Custom elements from *outside* a family (e.g. a `pf-button` inside a `pf-card-footer`) can coexist. The root family treats them as opaque — preserving their tag and attributes but not interfering with their own render lifecycle. This means families compose with leaf elements naturally.
+
+7. **The approach works.** Despite the above friction points, both leaf and compound components render correctly using the same PatternFly CSS, with Preact as a ~6KB drop-in replacement for React's ~40KB runtime.
 
 ---
 
 ## Devil's Advocate: Counterarguments and Responses
 
-We stress-tested this approach against the strongest objections. Below is a summary of each counterargument, its validity, and how the POC addresses (or accepts) it.
+| # | Counterargument | Severity | Response |
+|---|----------------|----------|----------|
+| 1 | **Easy part proven, hard part unknown** — Atoms are trivial; the real test is Select, Table, Wizard | High | Partially addressed — `bridgeFamily()` proves composition works (Card). Truly interactive components are equally hard in Lit. The boundary is the strategy, not a gap. |
+| 2 | **Preact compat is an assumption** — One incompatibility could silently break a component | Medium | Mitigated — only basic React features used (props, forwardRef, classes). CI tests catch regressions. `preact/compat` is battle-tested across major libraries. |
+| 3 | **Not "real" web components** — No Shadow DOM, slots, or ElementInternals | Low | Reframed — custom elements ARE web components. Shadow DOM is optional. Consumers care about API and correctness, not internals. |
+| 4 | **Light DOM lacks encapsulation** — Hostile CSS environments could break styling | Low | Accepted — target audience (PF users, Drupal, vanilla JS) already loads PF CSS globally. BEM naming provides practical isolation. Shadow DOM can be added per-component later if needed. |
+| 5 | **Bundle will grow unacceptably** — 30KB for 6 components extrapolates poorly | Medium | Addressed — per-component ESM tree-shaking. Single component + runtime = ~5KB gzipped. The 30KB IIFE includes transitive deps from Alert/Label. |
+| 6 | **Bridge IS maintenance burden** — Every React prop change needs a bridge update | Medium | Mitigated — bridge is 3–7 lines of declarative config per component. Adding a prop = adding one line. Contrast with 100–500 lines of Lit reimplementation per component. |
+| 7 | **Testing burden doubles** — Must test every component twice | Medium | Addressed — layered strategy: bridge utility tests (once), per-component smoke tests (10–20 lines each verify attribute → class pipeline), React tests still cover behavior. |
+| 8 | **Industry examples don't prove scale** — Cited projects wrap small widgets, not 80+ components | Low | Reframed — we're wrapping 10–15 atoms + a few compound families, which matches the proven tier. Scope boundary prevents scaling problems. |
+| 9 | **Optimizing for today's inertia** — Industry is moving WC-first; React source of truth may become irrelevant | High (strategic) | Accepted as de-risking — this POC delivers in weeks, validates demand, and components can be migrated to native WC under the same tags without breaking consumers. Sequential, not competing. |
 
-### 1. "You've proven the easy part; the hard part is what matters"
+**Overall verdict:** No counterargument invalidates the bounded POC. The strongest objections argue for discipline and clear communication, not abandonment. The POC validates demand cheaply before committing to larger bets.
 
-**Argument:** Buttons and badges are trivial. Any approach works for leaf nodes. The real test is composition-heavy components (Select, Table, Wizard) — and the POC doesn't address those.
+---
 
-**Assessment: Strongest counterargument overall.** It's technically correct — atoms are easy. But:
+## Why Not Ask React Consumers to Migrate?
 
-- The POC's scope is *intentionally* bounded to atoms. The target audience (Drupal, vanilla JS, mixed-framework teams) genuinely needs consistent buttons, alerts, and badges — not a full widget toolkit.
-- The "hard components" are equally hard in Lit. A Lit-native `<pf-select>` with keyboard navigation, filtering, and portals is a multi-month effort.
-- The atom boundary is the strategy, not a gap. It should be communicated clearly to avoid organizational scope creep.
+The primary counterproposal to this POC is: rewrite everything in Lit, then wrap with `@lit/react` and ask 300+ React-consuming projects to migrate. Industry evidence suggests this path carries more risk than it appears.
 
-**Mitigation:** Define and communicate the "bridgeable tier" boundary explicitly. If demand pushes past it, that becomes evidence to justify the larger Lit investment — informed by real adoption data rather than speculation.
+### React 19's Native Web Component Support
 
-### 2. "Preact compatibility is an assumption, not a guarantee"
+React 19 scores 100% on [Custom Elements Everywhere](https://custom-elements-everywhere.com/). The core integration works:
 
-**Argument:** The entire strategy depends on `preact/compat` faithfully replicating React. One incompatibility in a transitive dependency could silently break a component, and Preact's small team may lag behind React's feature releases.
+- Props set as properties when a matching DOM property exists on the element
+- Custom events wire up via `onEventName` convention
+- Boolean attributes handled correctly (presence = true, absence = false)
 
-**Assessment: Moderate concern, practically mitigated.** Valid in theory, but:
+However, **"works" and "good DX" are not the same thing** ([Rob Levin, Frontend Masters post-mortem, March 2026](https://frontendmasters.com/blog/post-mortem-rewriting-agnosticui-with-lit-web-components/)):
 
-- Atom-tier components use only basic React features (props, `forwardRef`, conditional classes). They don't use Context, Suspense, concurrent features, or anything on Preact's known-gap list.
-- `preact/compat` has been battle-tested for years across `react-query`, `react-router`, `zustand`, and `@floating-ui/react`.
-- The POC *already proved* it works — this isn't an assumption, it's a demonstrated result.
-- If React 19+ introduces a feature that Preact doesn't support and PF adopts it in an atom, that one component is excluded until Preact catches up (historically 1–3 months).
+| DX concern | Native React 19 | With `@lit/react` wrapper |
+|---|---|---|
+| TypeScript JSX types | Manual `declare module 'react/jsx-runtime'` declarations per element | Automatic — generated from component class |
+| Complex props (objects, arrays) | Works only if DOM property defined on class | Handled via `useLayoutEffect` |
+| Event mapping | `onEventName` works but multi-word events feel clunky | Explicit mapping with typed callbacks |
+| IDE autocomplete | No prop suggestions for custom elements | Full autocomplete from wrapper types |
+| SSR/Hydration | DSD hydration unsupported; event listener bug (fixed mid-2026) | Same limitations apply |
 
-**Mitigation:** CI tests run against Preact (already scaffolded). Per-component tests catch regressions immediately. If compat fails for a specific component, it can be rewritten natively in a few dozen lines without disrupting the rest.
+### What React Consumers Would Lose
 
-### 3. "You're not delivering real web components"
+Today, PatternFly React consumers get:
 
-**Argument:** These are React components wearing a custom element costume. They don't use Shadow DOM, slots, `ElementInternals`, or any native web component APIs. Consumers expecting "web components" will be disappointed.
+- **Full native React components** with TypeScript inference, IDE autocomplete, and standard prop patterns
+- **Direct access to React features** — Context, refs, hooks, Suspense boundaries, error boundaries
+- **First-class testing** with React Testing Library, no custom element registration needed
+- **Zero framework overhead** — no wrapper layer, no property-setting timing issues
 
-**Assessment: Valid framing concern, but misidentifies the goal.** The goal isn't "produce spec-compliant web components" — it's "deliver PatternFly components to non-React consumers using native browser APIs." Custom elements *are* real web components; Shadow DOM is optional, not required.
+A migration to `@lit/react` wrappers would mean:
 
-- The components register via `customElements.define()`, work in any HTML page, and behave like native elements.
-- Shadow DOM is intentionally omitted because PatternFly's CSS architecture is global/class-based, and light DOM lets React and WC consumers share one stylesheet.
-- No consumer will care whether the internals use Preact or hand-rolled vanilla JS — they care about API, correctness, and bundle size.
+- Every `import { Button } from '@patternfly/react-core'` changes
+- TypeScript types change (wrapper-generated vs source-derived)
+- Event handling patterns change (callback props → event listeners)
+- Testing approaches change (must register elements, await updates)
+- Performance characteristics change (`@lit/react` calls property setters on every React re-render)
 
-### 4. "Light DOM doesn't solve the use case that wants web components"
+### What Lit's Own Maintainer Says
 
-**Argument:** Teams wanting web components often want *encapsulation*: style isolation so their components don't break in hostile CSS environments.
+Justin Fagnani (Lit co-creator), when asked ["Is `@lit/react` still necessary?"](https://github.com/lit/lit/discussions/5068) (August 2025):
 
-**Assessment: Partially valid, but doesn't match our target audience.** Our consumers are:
+> "I'd say if you can use the built-in custom element support, you probably should."
 
-- Teams using PatternFly mixed with their own web components
-- Drupal-based sites needing consistent UI atoms
-- Pure HTML/CSS/vanilla JS projects
+This acknowledges that wrappers are a compatibility bridge, not a long-term architectural advantage. React 19 made them optional — but "optional" still means "worse DX than native React components."
 
-These teams already load PatternFly CSS globally. They don't need shadow encapsulation — they need consistent, pre-built elements that apply PF classes correctly. The BEM naming + `pf-v6-` prefix already provides practical isolation from accidental collisions.
+### The Bottom Line
 
-**Mitigation:** If a specific consumer proves they need style isolation, individual components can be upgraded to Shadow DOM without changing the public API (`<pf-button>` stays the same regardless of internal implementation).
+| | This POC (Preact-wrap) | Lit-first + `@lit/react` |
+|---|---|---|
+| React consumer impact | Zero — existing API unchanged | 300+ projects migrate |
+| Non-React consumer impact | New web components available | New web components available |
+| DX for React consumers | Native React (best possible) | Wrapper simulation (functional but degraded) |
+| Migration risk | None — additive delivery | High — breaking change for all React consumers |
+| Time to value | Weeks (atoms) to months (compound) | 12–24 months before any consumer sees benefit |
 
-### 5. "The bundle will grow to an unacceptable size"
+The Lit-first approach asks the largest consumer base (React) to accept a DX regression so that the smallest consumer base (non-React) can have web components. This POC inverts that: React consumers keep the best possible DX, and non-React consumers get web components — both from the same source.
 
-**Argument:** The POC is 30KB gzipped for 6 components. Extrapolate to 20–30 atoms and you're at 100KB+ — at which point, why not just ship React?
+---
 
-**Assessment: Valid concern, already addressed by tree-shaking.** The POC now supports per-component ESM entry points:
+## Proposed Next Steps: Toward a Unified Delivery
 
-```javascript
-// Only loads Button + shared Preact runtime (~8KB total)
-import '@patternfly/patternfly-web-components/button';
-```
+### Strategic Goal
 
-The 30KB measurement is the all-at-once IIFE bundle. Per-component imports share a single Preact runtime chunk and load only the component code needed. Additionally, much of the 30KB comes from transitive dependencies (Tooltip, icons) that are only present in Alert/Label — simpler atoms are far smaller.
+One maintained component source (React) delivering two outputs: native React components for React consumers, and custom elements for everyone else. Over time, this could replace `patternfly-elements` as the web components delivery — meaning one team maintains one codebase for both audiences.
 
-### 7. "The bridge IS the maintenance burden you're trying to avoid"
+### Current State
 
-**Argument:** Every React component change (new prop, renamed prop, changed behavior) requires a corresponding bridge update. This is just wrapper maintenance by another name.
+There *is* existing demand for web components — `patternfly-elements` has consumers. The size and insistence of that demand is not well characterized, but the existence of the PFE project and its users confirms the need is real. The question isn't "should we deliver web components?" — it's "what's the cheapest, least-disruptive way to do it without fragmenting the ecosystem further?"
 
-**Assessment: Partially valid, but the burden is proportional to scope.** The bridge for each component is 3–7 lines of declarative configuration:
+### Why Replacement is Desirable
 
-```typescript
-bridge(Button, 'pf-button', [
-  attr('variant'), attr('size'), attr('type'),
-  bool('isDisabled'), bool('isBlock'), bool('isLoading')
-]);
-```
+Today, PatternFly maintains two separate implementations:
 
-Adding a new prop = adding one line. Per-component CI tests catch drift. Contrast this with a Lit rewrite where each component is 100–500 lines of *implementation* that must be kept in behavioral sync with the React version.
+- **`@patternfly/react-core`** — React components, `pf-v6-*` CSS classes, Light DOM
+- **`@patternfly/elements`** (patternfly-elements) — Lit web components, `pf-v5-*` naming, Shadow DOM, own CSS custom properties
 
-**Mitigation:** Per-component integration tests (already scaffolded) validate the attribute → prop → markup pipeline. A prop added to React but missing from the bridge doesn't break anything — it's simply unavailable to WC consumers until the bridge is updated.
+These diverge over time. Feature parity is never complete. Bug fixes happen in one but not the other. The naming and API differences confuse consumers who use both. Two teams maintain two implementations of the same design language.
 
-### 8. "Testing burden doubles"
+### Feasibility Assessment
 
-**Argument:** You now need to test every component twice — once in React, once as a web component.
+**Clearly feasible (bridge approach):**
+- Leaf components: Button, Badge, Label, Alert, Switch, Spinner, Avatar, Banner, Icon, Progress, Chip
+- Compound components: Card, Accordion, Tabs, Label Group
+- Estimated ~60% of patternfly-elements component count
 
-**Assessment: Valid concern, but the actual burden is small.** The testing strategy is layered:
+**Feasible but requires hand-written implementations:**
+- Modal, Popover, Tooltip, Dropdown, Select, Clipboard Copy
+- Would use vanilla custom elements + PF CSS classes in the same package
+- More maintenance than bridged components but less than maintaining a full Lit library
 
-1. **Bridge utility tests** — validate `attr()`, `bool()`, and `bridge()` mechanics once.
-2. **Per-component smoke tests** — a controlled stub verifies the attribute → prop → class-name pipeline (10–20 lines per component, not full integration tests).
-3. **React tests still cover behavioral correctness** — the web component is just a delivery wrapper, not new logic.
+**Significant open risks:**
 
-The per-component tests don't duplicate React's behavioral tests. They verify the *contract* (given this attribute, the correct PF class appears in the DOM). This is closer to a thin integration check than a full test suite.
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| **Shadow DOM dependency** — PFE consumers may rely on style encapsulation | Breaking change for those consumers | Audit PFE consumer usage; offer opt-in encapsulation via adoptedStyleSheets if needed |
+| **API divergence** — PFE and PF React have different prop names, different features, different element names | Migration guide needed per component | Reconcile APIs component-by-component before delivering replacement |
+| **CSS system differences** — PFE uses `--pf-v5-c-*` tokens; PF React uses `pf-v6-*` classes | Theming breaks for PFE consumers | Map old tokens to new system or provide a compat stylesheet |
+| **PFE-only features** — Some PFE components have capabilities not in PF React | Feature gap in replacement | Add features to React components first, then bridge inherits them |
+| **Complex components** — Hand-written replacements for Modal, Select, etc. need to match PFE maturity | Under-delivery risk | Phase these last; validate with consumers before sunsetting PFE equivalents |
+| **Consumer migration timeline** — PFE consumers need time to transition | Can't sunset PFE immediately | Run both in parallel during transition with clear deprecation timeline |
 
-### 9. "Voorhoede proved this doesn't scale"
+### Proposed Phases
 
-**Argument:** The cited industry examples use Preact + custom elements for small widgets (cookie bars, newsletter forms), not 80+ component design systems.
+**Phase 1: Audit and Reconcile (pre-requisite)**
+- Map every patternfly-elements component to its patternfly-react equivalent
+- Identify naming differences, API gaps, and feature discrepancies
+- Prioritize by consumer usage data (which PFE components are most used?)
+- Resolve: do any PFE consumers *require* Shadow DOM encapsulation?
 
-**Assessment: Partly valid but misapplied to our scope.** We're not wrapping 80 components — we're wrapping 10–15 atoms, which is the same complexity tier where this pattern is already proven. CMS.gov uses it for government design system infrastructure across multiple frameworks, which is closer to our use case than a cookie bar.
+**Phase 2: Deliver Aligned Atoms via Bridge**
+- Starting with the highest-overlap components (Button, Badge, Label, Card, Alert)
+- Ensure element names, attribute APIs, and visual output match the reconciled spec
+- Ship as `@patternfly/patternfly-web-components` alongside PFE (non-breaking, additive)
+- Gather consumer feedback
 
-**Mitigation:** The scope boundary prevents this from becoming a scaling problem. If demand grows beyond atoms, that's the trigger to evaluate Lit — with real adoption data in hand.
+**Phase 3: Expand to Compound + Hand-Written**
+- Deliver compound components via `bridgeFamily()` (Accordion, Tabs, Nav)
+- Build hand-written implementations for complex components (Modal, Select, Popover)
+- Each hand-written component uses PF CSS classes — same visual output as React
 
-### 10. "You might be optimizing for today's inertia, not tomorrow's direction"
+**Phase 4: Deprecate and Sunset PFE**
+- Once component coverage and consumer confidence are sufficient
+- Provide a migration guide mapping old PFE element names/attributes to new equivalents
+- Run a deprecation period with both packages available
+- Sunset `@patternfly/elements`
 
-**Argument:** The industry is moving toward web-components-first design systems. By keeping React as the source of truth, you're building toward a paradigm that may become less relevant. The strategic move might be WC-first with React wrappers, not the reverse.
+### Honest Assessment
 
-**Assessment: The strongest *strategic* counterargument.** The industry trend is real (GitHub, Adobe, Microsoft, Salesforce have gone WC-first). However:
+This is a multi-quarter effort, not a quick win. The POC proves the *mechanism* works, but replacing a production library requires:
 
-- A WC-first rewrite requires 12–24 months and multi-FTE investment before delivering value. The Preact approach delivers in weeks.
-- If demand validates, the Preact wrappers become evidence to justify the larger investment.
-- The approaches are sequential, not competing: ship atoms now → validate demand → invest in Lit if data supports it.
-- Components can be migrated from Preact-wrapped to native WC *under the same custom element tags* without breaking consumers.
+- Organizational alignment (PFE maintainers, React maintainers, and consumers all agreeing)
+- Feature parity (or an agreed-upon subset)
+- Migration tooling and documentation
+- Consumer patience during the transition
 
-**Key framing:** The Preact-wrap approach isn't the long-term architecture — it's the cheapest way to de-risk the decision of whether to pursue one.
-
-### Summary
-
-| Counterargument | Severity | Status |
-|----------------|----------|--------|
-| Easy part proven, hard part unknown | High | Accepted — boundary is the strategy |
-| Preact compat risk | Medium | Mitigated — CI tests + bounded API surface |
-| Not "real" web components | Low | Reframed — custom elements are real WCs |
-| Light DOM lacks encapsulation | Low | Accepted — not needed for target audience |
-| Bundle size growth | Medium | Addressed — per-component tree-shaking |
-| Bridge is maintenance burden | Medium | Mitigated — 3–7 lines per component + CI |
-| Testing burden doubles | Medium | Addressed — layered test strategy, minimal per-component overhead |
-| Voorhoede doesn't prove scale | Low | Reframed — scope matches proven tier |
-| Optimizing for today's inertia | High (strategic) | Accepted — POC is a de-risking step, not a destination |
-
-**Overall verdict:** No single counterargument invalidates the bounded POC strategy. The strongest objections (scope creep, strategic direction) are arguments for *discipline and clear communication*, not for abandoning the approach. The POC's value is in validating demand cheaply before committing to larger architectural bets.
+The POC's immediate value is delivering web components to non-React consumers *today* without waiting for any of the above. The longer-term convergence is the aspirational goal — achievable incrementally, component by component, validated by real adoption at each step.

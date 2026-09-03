@@ -79,11 +79,7 @@ const iifeBuild = {
     name: 'PfElements',
     sourcemap: true
   },
-  plugins: [
-    ...sharedPlugins,
-    typescript({ tsconfig: './tsconfig.json', outDir: 'dist' }),
-    terser({ maxWorkers: 1 })
-  ]
+  plugins: [...sharedPlugins, typescript({ tsconfig: './tsconfig.json', outDir: 'dist' }), terser({ maxWorkers: 1 })]
 };
 
 const builds = [esmBuild, iifeBuild];

@@ -8,3 +8,4 @@ import '@patternfly/patternfly-web-components/label';
 import '@patternfly/patternfly-web-components/spinner';
 import '@patternfly/patternfly-web-components/alert';
 import '@patternfly/patternfly-web-components/switch';
+import '@patternfly/patternfly-web-components/card';

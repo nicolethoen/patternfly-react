@@ -15,3 +15,4 @@ import './elements/label';
 import './elements/spinner';
 import './elements/alert';
 import './elements/switch';
+import './elements/card';
